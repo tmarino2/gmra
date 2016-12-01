@@ -131,22 +131,48 @@ def gmra(rdd,resolution,d):
     c_jk,Phi_jk = proj_step(rdd,d)
     resolutions = [(rdd,c_jk,Phi_jk)]
     low_dim_rep = [proj_points(rdd,c_jk,Phi_jk)[0]]
-    '''rep = [rdd]
-    proj_matrices = [sc.parallelize(np.eye(rdd.first().shape[0]))]
-    centers = [c_jk]
-    clusters = [rdd]'''
-    #wavelets = []
     for j in xrange(2**resolution+1):
-        cluster_0,cluster_1 = cluster_step(clusters[j])
-        #clusters += [cluster_0,cluster_1]
-        c_jk, Phi_jk = proj_step(cluster_0,d)
-        c_jk1, Phi_jk1 = proj_step(cluster_1,d)
-        #centers += [c_jk,c_jk1]
-        ldr_k,rep_k = proj_points(cluster_0,c_jk,Phi_jk)
-        ldr_k1,rep_k1 = proj_points(cluster_1,c_jk1,Phi_jk1)
-        resolutions += [(rep_k,c_jk,Phi_jk),(rep_k1,c_jk1,Phi_jk1)]
-        low_dim_rep += [ldr_k,ldr_k1]
-        #rep += [rep_k,rep_k1]
-        #proj_matrices += [pr_k,pr_k1]
-    #return low_dim_rep,rep,centers,proj_matrices,clusters
+        if resolutions[j] != None:
+            cluster_0,cluster_1 = cluster_step(clusters[j])
+            c_jk, Phi_jk = proj_step(cluster_0,d)
+            c_jk1, Phi_jk1 = proj_step(cluster_1,d)
+            if subsp_angle(Phi_jk,Phi_jk1) < 0.99999: #replace by epsilon of choice
+                ldr_k,rep_k = proj_points(cluster_0,c_jk,Phi_jk)
+                ldr_k1,rep_k1 = proj_points(cluster_1,c_jk1,Phi_jk1)
+                resolutions += [(rep_k,c_jk,Phi_jk),(rep_k1,c_jk1,Phi_jk1)]
+                low_dim_rep += [ldr_k,ldr_k1]
+            else:
+                resolutions = None
+                low_dim_reps = None
     return low_dim_reps,resolutions
+
+def project_test_point(resolutions, point):
+    #point should be an mx1 rdd
+    point_reps = [mult_matr(rddTranspose(resolutions[0][2]),point)]
+    j = 0
+    while 2**j+1 < len(resolutions):
+        if resolutions[j] == None:
+            break
+        idx1 = 2**j+1
+        idx2 = 2**j+2
+        dist1 = norm_square(add(resolutions[idx1][1],mult_by_sc(point,1)))
+        dist2 = norm_square(add(resolutions[idx2][1],mult_by_sc(point,1)))
+        if dist1 <= dist2:
+            point_reps.append(mult_matr(rddTranspose(resolutions[idx1][2]),add(point,mult_by_sc(resolutions[idx1][1],-1))))
+            j = idx1
+        else:
+            point_reps.append(mult_matr(rddTranspose(resolutions[idx2][2]),add(point,mult_by_sc(resolutions[idx2][1],-1))))
+            j = idx2
+    return point_reps
+
+def subsp_angle(A,B):
+    ab = mult_matr(rddTranspose(A),B)
+    a = mult_matr(rddTranspose(A),A)
+    b = mult_matr(rddTranspose(B),B)
+    #all of ab,a and b should have small number of rows and columns
+    #so it should be ok to convert to a np array representation to compute traces
+    ab = np.trace(np.asarray(ab.collect()))
+    a = np.trace(np.asarray(a.collect()))
+    b = np.trace(np.asarray(b.collect()))
+    return ab/(a*b)
+    
