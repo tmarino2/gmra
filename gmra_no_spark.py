@@ -46,7 +46,7 @@ class GMRA:
         resolutions = [(data,c_jk,Phi_jk[:,0:dim])]
         low_dim_reps = [np.transpose(Phi_jk[:,0:dim]).dot(data)]
         for j in xrange(2**res+1):
-            print "At "+j+"-th scale"
+            print "At "+str(j)+"-th scale"
             if resolutions[j] != None:
                 cluster_0,cluster_1 = self.split_step(resolutions[j][0])
                 c_jk0, Phi_jk0 = self.proj_matrix(cluster_0,dim)
