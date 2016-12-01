@@ -48,7 +48,7 @@ class GMRA:
         for j in xrange(2**res+1):
             print "At scale "+str(j)
             if resolutions[j] != None and resolutions[j][0].shape[1]>1:
-                print len(resolutions[j][0])
+                print resolutions[j][0].shape[1]
                 cluster_0,cluster_1 = self.split_step(resolutions[j][0])
                 c_jk0, Phi_jk0 = self.proj_matrix(cluster_0,dim)
                 c_jk1, Phi_jk1 = self.proj_matrix(cluster_1,dim)
