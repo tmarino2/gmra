@@ -61,7 +61,7 @@ class C_jk:
     def mean(self):
         self.c_jk = self.C_jk.reduce(lambda arr1,arr2: arr1+arr2)
         c_jk = np.copy(self.c_jk)
-        self.c_jk = self.sc.parallelize(c_jk)
+        self.c_jk = sc.parallelize(c_jk)
         #self.c_jk = self.C_jk.map(np.mean)
         return c_jk
     
