@@ -1,10 +1,11 @@
 import numpy as np
-import pyspark
+from pyspark import SparkContext
 from pyspark.mllib.linalg.distributed import *
 from pyspark.mllib.clustering import *
 from pyspark.mllib.common import callMLlibFunc, JavaModelWrapper
 from pyspark.mllib.linalg.distributed import *
 
+sc = SparkContext()
 class SVD(JavaModelWrapper):
     """Wrapper around the SVD scala case class"""
     @property
