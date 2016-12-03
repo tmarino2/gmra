@@ -1,11 +1,11 @@
 import numpy as np
+import mdtraj as md
 from pyspark import SparkContext
 from pyspark.mllib.linalg.distributed import *
 from pyspark.mllib.clustering import *
 from pyspark.mllib.common import callMLlibFunc, JavaModelWrapper
 from pyspark.mllib.linalg.distributed import *
 
-sc = SparkContext()
 class SVD(JavaModelWrapper):
     """Wrapper around the SVD scala case class"""
     @property
@@ -42,6 +42,7 @@ class C_jk:
     #transpose the rdd in the init and then do all operations on the column-wise data 
     def __init__(self,C_jk,dim):#replace with path to file where each C_jk is stored
         #self.C_jk = self.rddTranspose(C_jk)
+        self.sc = SparkContext()
         self.C_jk = C_jk
         self.c_jk = None
         self.P_jk = None
@@ -58,7 +59,7 @@ class C_jk:
     def mean(self):
         self.c_jk = self.C_jk.reduce(lambda arr1,arr2: arr1+arr2)
         c_jk = np.copy(self.c_jk)
-        self.c_jk = sc.parallelize(c_jk)
+        self.c_jk = self.sc.parallelize(c_jk)
         #self.c_jk = self.C_jk.map(np.mean)
         return c_jk
     
@@ -76,4 +77,3 @@ class C_jk:
             self.compute_proj()
         self.C_jk_projected = self.C_jk.map(lambda point: np.transpose(self.P_jk).dot(point))
         return self.C_jk_projected
-
