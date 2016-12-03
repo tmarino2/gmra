@@ -128,7 +128,7 @@ class GMRA:
                 c_jk0, Phi_jk0, low_dim_rep_k0 = self.project_cluster(cluster_0)
                 c_jk1, Phi_jk1, low_dim_rep_k1 = self.project_cluster(cluster_1)
                 if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999: #replace by epsilon of choice
-                    resolutions += [(rep_k0,c_jk0,Phi_jk0),(rep_k1,c_jk1,Phi_jk1)]
+                    resolutions += [(cluster_0,c_jk0,Phi_jk0),(cluster_1,c_jk1,Phi_jk1)]
                     low_dim_reps += [low_dim_rep_k0,low_dim_rep_k1]
                 else:
                     resolutions += [None]
