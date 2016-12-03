@@ -63,7 +63,7 @@ class C_jk:
         C_jk_centered = mean_zip.map(lambda (row,m): np.asarray(map(lambda row_el: row_el - m, row)))
         svd = computeSVD(RowMatrix(C_jk_centered),self.dim,computeU=True)
         P_jk = svd.U.rows
-        self.P_jk = np.asarray(P_jk.map(lambda rowL row.toArray()))
+        self.P_jk = np.asarray(P_jk.map(lambda row: row.toArray()))
         return self.P_jk
 
     def project(self):
