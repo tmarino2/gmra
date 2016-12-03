@@ -1,11 +1,13 @@
 import numpy as np
 import mdtraj as md
-from pyspark import SparkContext
+from pyspark import SparkConf, SparkContext
 from pyspark.mllib.linalg.distributed import *
 from pyspark.mllib.clustering import *
 from pyspark.mllib.common import callMLlibFunc, JavaModelWrapper
 from pyspark.mllib.linalg.distributed import *
 
+conf = SparkConf().setAppName("GMRA")
+sc = SparkContext(conf=conf)
 class SVD(JavaModelWrapper):
     """Wrapper around the SVD scala case class"""
     @property
