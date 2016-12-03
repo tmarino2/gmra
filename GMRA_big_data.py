@@ -80,7 +80,7 @@ class C_jk:
     def project(self):
         if self.P_jk == None:
             self.compute_proj()
-        self.P_jk[0]#fucking python lazy evaluation
-        C_jk_projected = self.C_jk.map(lambda point: np.transpose(self.P_jk).dot(point))
+        P_jk = np.copy(self.P_jk)#fucking python lazy evaluation
+        C_jk_projected = self.C_jk.map(lambda point: np.transpose(P_jk).dot(point))
         self.C_jk_projected = C_jk_projected
         return C_jk_projected
