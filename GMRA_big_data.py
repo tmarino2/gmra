@@ -39,7 +39,8 @@ def computeSVD(row_matrix, k, computeU=False, rCond=1e-9):
 class C_jk:
     #transpose the rdd in the init and then do all operations on the column-wise data 
     def __init__(self,C_jk,dim):#replace with path to file where each C_jk is stored
-        self.C_jk = self.rddTranspose(C_jk)
+        #self.C_jk = self.rddTranspose(C_jk)
+        self.C_jk = C_jk
         self.c_jk = None
         self.P_jk = None
         self.dim = dim
@@ -53,23 +54,24 @@ class C_jk:
         return rddT4.map(lambda x: np.asarray(x))
 
     def mean(self):
-        self.c_jk = self.C_jk.map(np.mean)
-        return np.asarray(self.c_jk.collect())
+        self.c_jk = self.C_jk.reduce(lambda arr1,arr2: arr1+arr2)
+        c_jk = np.copy(self.c_jk)
+        self.c_jk = sc.parallelize(c_jk)
+        #self.c_jk = self.C_jk.map(np.mean)
+        return c_jk
     
     def compute_proj(self):
         if self.c_jk == None:
             self.mean()
         mean_zip = self.C_jk.zip(self.c_jk)
         C_jk_centered = mean_zip.map(lambda (row,m): np.asarray(map(lambda row_el: row_el - m, row)))
-        svd = computeSVD(RowMatrix(C_jk_centered),self.dim,computeU=True)
-        P_jk = svd.U.rows
-        self.P_jk = np.asarray(P_jk.map(lambda row: row.toArray()).collect())
+        svd = computeSVD(RowMatrix(C_jk_centered))
+        self.P_jk = svd.V.toArray()
         return self.P_jk
 
     def project(self):
         if self.P_jk == None:
             self.compute_proj()
-        P_jk_T = np.transpose(self.P_jk)
         self.C_jk_projected = self.C_jk.map(lambda point: np.transpose(self.P_jk).dot(point))
         return self.C_jk_projected
 
