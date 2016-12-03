@@ -54,7 +54,7 @@ class C_jk:
 
     def mean(self):
         self.c_jk = self.C_jk.map(np.mean)
-        return np.asarray(c_jk.collect())
+        return np.asarray(self.c_jk.collect())
     
     def compute_proj(self):
         if self.c_jk == None:
