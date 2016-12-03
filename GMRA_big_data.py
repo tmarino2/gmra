@@ -1,4 +1,5 @@
 import numpy as np
+import pyspark
 from pyspark.mllib.linalg.distributed import *
 from pyspark.mllib.clustering import *
 from pyspark.mllib.common import callMLlibFunc, JavaModelWrapper
