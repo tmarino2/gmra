@@ -70,6 +70,7 @@ class C_jk:
         #mean_zip = self.C_jk.zip(self.c_jk)
         #C_jk_centered = mean_zip.map(lambda (row,m): np.asarray(map(lambda row_el: row_el - m, row)))
         C_jk_centered = self.C_jk.map(lambda row: row - self.c_jk)
+        C_jk_centered.count()
         rowMatr = RowMatrix(C_jk_centered)
         svd = computeSVD(rowMatr,self.dim)
         self.P_jk = svd.V.toArray()
