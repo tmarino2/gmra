@@ -69,9 +69,9 @@ class C_jk:
             self.mean()
         #mean_zip = self.C_jk.zip(self.c_jk)
         #C_jk_centered = mean_zip.map(lambda (row,m): np.asarray(map(lambda row_el: row_el - m, row)))
-        c_jk = np.copy(self.c_jk)
+        c_jk = np.copy(self.c_jk)#fucking python lazy evaluation
         C_jk_centered = self.C_jk.map(lambda row: row - c_jk)
-        print C_jk_centered.count()
+        C_jk_centered.first()#fucking python lazy evaluation
         rowMatr = RowMatrix(C_jk_centered)
         svd = computeSVD(rowMatr,self.dim)
         self.P_jk = svd.V.toArray()
@@ -80,5 +80,6 @@ class C_jk:
     def project(self):
         if self.P_jk == None:
             self.compute_proj()
+        P_jk[0]#fucking python lazy evaluation
         self.C_jk_projected = self.C_jk.map(lambda point: np.transpose(self.P_jk).dot(point))
         return self.C_jk_projected
