@@ -6,8 +6,8 @@ from pyspark.mllib.clustering import *
 from pyspark.mllib.common import callMLlibFunc, JavaModelWrapper
 from pyspark.mllib.linalg.distributed import *
 
-conf = SparkConf().setAppName("GMRA")
-sc = SparkContext(conf=conf)
+#conf = SparkConf().setAppName("GMRA")
+#sc = SparkContext(conf=conf)
 class SVD(JavaModelWrapper):
     """Wrapper around the SVD scala case class"""
     @property
