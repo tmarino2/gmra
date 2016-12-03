@@ -57,7 +57,7 @@ class C_jk:
         rddT3 = rddT2.map(lambda (i, x): sorted(list(x),cmp=lambda (i1,e1),(i2,e2) : cmp(i1, i2)))
         rddT4 = rddT3.map(lambda x: map(lambda (i, y): y , x))
         return rddT4.map(lambda x: np.asarray(x))
-
+    
     def mean(self):
         self.c_jk = self.C_jk.reduce(lambda arr1,arr2: arr1+arr2)
         c_jk = np.copy(self.c_jk)
@@ -73,7 +73,7 @@ class C_jk:
         svd = computeSVD(RowMatrix(C_jk_centered),self.dim)
         self.P_jk = svd.V.toArray()
         return self.P_jk
-
+    
     def project(self):
         if self.P_jk == None:
             self.compute_proj()
