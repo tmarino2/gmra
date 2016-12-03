@@ -62,7 +62,7 @@ class C_jk:
         #c_jk = np.copy(self.c_jk)
         #self.c_jk = sc.parallelize(c_jk)
         #self.c_jk = self.C_jk.map(np.mean)
-        return c_jk
+        return self.c_jk
     
     def compute_proj(self):
         if self.c_jk == None:
@@ -70,7 +70,8 @@ class C_jk:
         #mean_zip = self.C_jk.zip(self.c_jk)
         #C_jk_centered = mean_zip.map(lambda (row,m): np.asarray(map(lambda row_el: row_el - m, row)))
         C_jk_centered = self.C_jk.map(lambda row: row - self.c_jk)
-        svd = computeSVD(RowMatrix(C_jk_centered),self.dim)
+        rowMatr = RowMatrix(C_jk_centered)
+        svd = computeSVD(rowMatr,self.dim)
         self.P_jk = svd.V.toArray()
         return self.P_jk
     
