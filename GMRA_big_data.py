@@ -95,8 +95,7 @@ class GMRA:
         self.low_dim_reps = []
         self.resolutions = []
         
-    def split_step(self):
-        rdd = self.data
+    def split_step(self,rdd):
         #take an rdd with row-wise data and split it in two clusters with k-means
         #return the two rdd's wrt to the clusters
         kmeans_b = KMeans.train(rdd, 2, maxIterations=10, seed=50, initializationSteps=5)
