@@ -108,9 +108,9 @@ class GMRA:
         return cluster_0.map(lambda (entry,cluster) : entry), cluster_1.map(lambda (entry,cluster) : entry)
     
     def project_cluster(self, data):
-        C_jk = C_jk(data,self.dim)
-        low_dim_rep = C_jk.project()
-        return C_jk.c_jk, C_jk.P_jk, low_dim_rep
+        C = C_jk(data,self.dim)
+        low_dim_rep = C.project()
+        return C.c_jk, C.P_jk, low_dim_rep
     
     def fit(self, data=None, dim=None, res=None):
         if data==None:
