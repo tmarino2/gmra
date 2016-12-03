@@ -43,7 +43,7 @@ class C_jk:
     def __init__(self,C_jk,dim):#replace with path to file where each C_jk is stored
         #self.C_jk = self.rddTranspose(C_jk)
         self.sc = SparkContext()
-        self.C_jk = C_jk
+        self.C_jk = sc.parallelize(C_jk)
         self.c_jk = None
         self.P_jk = None
         self.dim = dim
