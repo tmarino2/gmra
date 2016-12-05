@@ -187,11 +187,10 @@ class GMRA:
                     fit_in_mem = True
                     for j in xrange(2**(i+1)):
                         idx = 2**(i+1)-1+j
-                        rdd_j.union([np.asarray(self.resolutions[idx][0].collect())]) d d
+                        rdd_j.union([np.asarray(self.resolutions[idx][0].collect())])
             else:
                 rdd_j = self.next_res(rdd_j)
-            i+=1
-                
+            i+=1        
         return self.resolutions
     
     def project_test_point(self, point):
