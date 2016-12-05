@@ -186,10 +186,13 @@ class GMRA:
                 print "maxmem ",max_mem
                 if 3*max_mem < mem:
                     fit_in_mem = True
+                    print "fit in mem true"
                     for j in xrange(2**(i+1)):
                         idx = 2**(i+1)-1+j
                         rdd_j.union(sc.parallelize([np.asarray(self.resolutions[idx][0].collect())]))
+                    print rdd_j.count()
             else:
+                print "in mem"
                 rdd_j = self.next_res(rdd_j)
             i+=1        
         return self.resolutions
