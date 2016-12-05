@@ -200,6 +200,7 @@ class GMRA:
                         print temp_rdd.count()
                         rdd_j = rdd_j.union(temp_rdd)
                     print "rdd_j size: ",rdd_j.count()
+                    print rdd_j.first()
             else:
                 print "in mem"
                 temp_rdd = self.next_res(rdd_j)
