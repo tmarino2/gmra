@@ -247,7 +247,7 @@ def next_res_sub(res_jk, dim):
         print cluster_0.shape,cluster_1.shape
         c_jk0, Phi_jk0, low_dim_rep_k0 = proj_matrix(cluster_0,dim)
         c_jk1, Phi_jk1, low_dim_rep_k1 = proj_matrix(cluster_1,dim)
-        if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999:
+        if subsp_angle(Phi_jk0,Phi_jk1) < 0.99999:
             resolutions = [(cluster_0,c_jk0,Phi_jk0,low_dim_rep_k0),(cluster_1,c_jk1,Phi_jk1,low_dim_rep_k1)]
         else:
             resolutions = [None,None]
@@ -269,3 +269,8 @@ def split_step(data):
     cluster_1 = filter(lambda (entry,cluster) : cluster == 1, to_split)
     return np.asarray(map(lambda (entry,cluster) : entry, cluster_0)), np.asarray(map(lambda (entry,cluster) : entry, cluster_1))
 
+def subsp_angle(A, B):
+    ab = np.trace(np.transpose(A).dot(B))
+    a = np.sqrt(np.trace(np.transpose(A).dot(A)))
+    b = np.sqrt(np.trace(np.transpose(B).dot(B)))
+    return ab/(a*b)
