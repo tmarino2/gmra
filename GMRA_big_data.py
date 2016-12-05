@@ -193,7 +193,8 @@ class GMRA:
                     print rdd_j.count()
             else:
                 print "in mem"
-                rdd_j = self.next_res(rdd_j)
+                temp_rdd = self.next_res(rdd_j)
+                rdd_j = temp_rdd
             i+=1        
         return self.resolutions
     
