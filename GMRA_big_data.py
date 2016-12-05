@@ -143,7 +143,7 @@ class GMRA:
         self.resolutions += resolutions
         return resolutions
         
-    def next_res_sub(self, res_jk, dim):
+    '''def next_res_sub(self, res_jk, dim):
         #something is not right here
         resolutions = []
         if res_jk != None and len(res_jk[0])>1:
@@ -155,10 +155,10 @@ class GMRA:
                 resolutions = [(cluster_0,c_jk0,Phi_jk0,low_dim_rep_k0),(cluster_1,c_jk1,Phi_jk1,low_dim_rep_k1)]
             else:
                 resolutions = [None,None]
-        return resolutions
+        return resolutions'''
         
     def next_res(self, rdd_j):
-        rdd_j1 = rdd_j.flatMap(lambda res_jk: self.next_res_sub(res_jk,self.dim))
+        rdd_j1 = rdd_j.flatMap(lambda res_jk: next_res_sub(res_jk,self.dim))
         print "next_res rdd size",rdd_j1.count()
         self.resolutions += rdd_j1.collect()
         return rdd_j1
@@ -232,3 +232,33 @@ class GMRA:
         a = np.sqrt(np.trace(np.transpose(A).dot(A)))
         b = np.sqrt(np.trace(np.transpose(B).dot(B)))
         return ab/(a*b)
+
+def next_res_sub(res_jk, dim):
+        #something is not right here
+    resolutions = []
+    if res_jk != None and len(res_jk[0])>1:
+        cluster_0, cluster_1 = split_step(res_jk[0])
+        print cluster_0.shape,cluster_1.shape
+        c_jk0, Phi_jk0, low_dim_rep_k0 = proj_matrix(cluster_0,dim)
+        c_jk1, Phi_jk1, low_dim_rep_k1 = proj_matrix(cluster_1,dim)
+        if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999:
+            resolutions = [(cluster_0,c_jk0,Phi_jk0,low_dim_rep_k0),(cluster_1,c_jk1,Phi_jk1,low_dim_rep_k1)]
+        else:
+            resolutions = [None,None]
+    return resolutions
+
+def proj_matrix(data,dim):
+    data = np.transpose(data)
+    c_jk = data.mean(1)
+    c_jk = np.reshape(c_jk,(c_jk.shape[0],1))
+    centered_data = data - c_jk
+    Phi_jk, _, _ = np.linalg.svd(centered_data,full_matrices=False)
+    low_dim_rep = np.transpose(Phi_jk[:,0:dim]).dot(centered_data)
+    return c_jk, Phi_jk[:,0:dim], np.transpose(low_dim_rep)
+
+def split_step(data):
+    km = kmeans(n_clusters=2, random_state=0).fit(data)
+    to_split = zip(data,km.labels_)
+    cluster_0 = filter(lambda (entry,cluster) : cluster == 0, to_split)
+    cluster_1 = filter(lambda (entry,cluster) : cluster == 1, to_split)
+    return np.asarray(map(lambda (entry,cluster) : entry, cluster_0)), np.asarray(map(lambda (entry,cluster) : entry, cluster_1))
