@@ -203,10 +203,10 @@ class GMRA:
                     #print rdd_j.first()
             else:
                 print "in mem"
-                temp_rdd = self.next_res(rdd_j)
-                #temp_rdd,resolutions = next_res(rdd_j,self.dim)
+                #temp_rdd = self.next_res(rdd_j)
+                temp_rdd,resolutions = next_res(rdd_j,self.dim)
                 print temp_rdd.count()
-                #self.resolutions += resolutions
+                self.resolutions += resolutions
                 rdd_j = temp_rdd
             i+=1        
         return self.resolutions
