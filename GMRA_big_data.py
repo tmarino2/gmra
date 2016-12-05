@@ -143,7 +143,7 @@ class GMRA:
         self.resolutions += resolutions
         return resolutions
         
-    '''def next_res_sub(self, res_jk, dim):
+    def next_res_sub(self, res_jk, dim):
         #something is not right here
         resolutions = []
         if res_jk != None and len(res_jk[0])>1:
@@ -155,7 +155,7 @@ class GMRA:
                 resolutions = [(cluster_0,c_jk0,Phi_jk0,low_dim_rep_k0),(cluster_1,c_jk1,Phi_jk1,low_dim_rep_k1)]
             else:
                 resolutions = [None,None]
-        return resolutions'''
+        return resolutions
         
     def next_res(self, rdd_j):
         rdd_j1 = rdd_j.flatMap(lambda res_jk: next_res_sub(res_jk,self.dim))
