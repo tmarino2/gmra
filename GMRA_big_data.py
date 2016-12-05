@@ -143,9 +143,11 @@ class GMRA:
         return resolutions
         
     def next_res_sub(self, res_jk, dim):
+        #something is not right here
         resolutions = []
         if res_jk != None and len(res_jk[0])>1:
             cluster_0, cluster_1 = self.split_step(res_jk[0])
+            print cluster_0.shape,cluster_1.shape
             c_jk0, Phi_jk0, low_dim_rep_k0 = self.proj_matrix(cluster_0)
             c_jk1, Phi_jk1, low_dim_rep_k1 = self.proj_matrix(cluster_1)
             if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999:
