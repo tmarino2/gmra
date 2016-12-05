@@ -164,7 +164,8 @@ class GMRA:
         return rdd_j1
 
     def compute_mem(self, rdd):
-        return rdd.count() #make this approximately compute memory taken by rdd
+        row_size = (len(rdd.first())*rdd.first().itemsize)/1024.0 #approximate size of row in KBs
+        return rdd.count()*row_size #make this approximately compute memory taken by rdd
     
     def fit(self, data=None, dim=None, res=None, mem=None):
         if data==None:
@@ -188,7 +189,7 @@ class GMRA:
                     if max_mem < max(self.compute_mem(resolutions[0][0]),self.compute_mem(resolutions[1][0])):
                         max_mem =  max(self.compute_mem(resolutions[0][0]),self.compute_mem(resolutions[1][0]))
                 print "maxmem ",max_mem
-                if 3*max_mem < self.mem:
+                if 4*max_mem < self.mem:
                     fit_in_mem = True
                     print "fit in mem true"
                     for j in xrange(2**(i+1)):
