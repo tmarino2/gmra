@@ -155,7 +155,7 @@ class GMRA:
         return resolutions
         
     def next_res(self, rdd_j):
-        rdd_j1 = rdd_j.flatMap(lambda res_jk: next_res_sub(res_jk,self.dim))
+        rdd_j1 = rdd_j.flatMap(lambda res_jk: self.next_res_sub(res_jk,self.dim))
         print "next_res rdd size",rdd_j1.count()
         self.resolutions += rdd_j1.collect()
         return rdd_j1
