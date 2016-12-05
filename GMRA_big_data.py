@@ -92,7 +92,7 @@ class GMRA:
         self.data = data
         self.dim = manifold_dim
         self.res = resolution
-        self.low_dim_reps = []
+        #self.low_dim_reps = []
         self.resolutions = []
         
     def split_step_rdd(self,rdd):
@@ -112,29 +112,60 @@ class GMRA:
         cluster_0 = filter(lambda (entry,cluster) : cluster == 0, to_split)
         cluster_1 = filter(lambda (entry,cluster) : cluster == 1, to_split)
         return np.asarray(map(lambda (entry,cluster) : entry, cluster_0)), np.asarray(map(lambda (entry,cluster) : entry, cluster_1))
-
-    def next_res_rdd(self, res_jk):
-        resolutions = []
-        low_dim_reps = []
-        if res_jk != None and res_jk[0].count()>1:
-            cluster_0,cluster_1 = self.split_step_rdd(res_jk[0])
-            c_jk0, Phi_jk0, low_dim_rep_k0 = self.project_cluster(cluster_0)
-            c_jk1, Phi_jk1, low_dim_rep_k1 = self.project_cluster(cluster_1)
-            if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999: #replace by epsilon of choice
-                resolutions = [(cluster_0,c_jk0,Phi_jk0),(cluster_1,c_jk1,Phi_jk1)]
-                low_dim_reps = [low_dim_rep_k0,low_dim_rep_k1]
-            else:
-                resolutions = [None]
-                low_dim_reps = [None]
-        self.resolutions += resolutions
-        self.low_dim_reps += low_dim_reps
-        return resolutions,low_dim_reps
     
     def project_cluster(self, data):
         C = C_jk(data,self.dim)
         low_dim_rep = C.project()
         return C.c_jk, C.P_jk, low_dim_rep
-    
+
+    def proj_matrix(self, data):
+        data = np.transpose(data)
+        c_jk = data.mean(1)
+        c_jk = np.reshape(c_jk,(c_jk.shape[0],1))
+        centered_data = data - c_jk
+        Phi_jk, _, _ = np.linalg.svd(centered_data,full_matrices=False)
+        low_dim_rep = np.transpose(Phi_jk).dot(centered_data)
+        return c_jk, Phi_jk[:,0:self.dim], np.transpose(low_dim_rep)
+        
+    def next_res_rdd(self, res_jk):
+        resolutions = []
+        #low_dim_reps = []
+        if res_jk != None and res_jk[0].count()>1:
+            cluster_0,cluster_1 = self.split_step_rdd(res_jk[0])
+            c_jk0, Phi_jk0, low_dim_rep_k0 = self.project_cluster(cluster_0)
+            c_jk1, Phi_jk1, low_dim_rep_k1 = self.project_cluster(cluster_1)
+            if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999: #replace by epsilon of choice
+                resolutions = [(cluster_0,c_jk0,Phi_jk0,low_dim_rep_k0),(cluster_1,c_jk1,Phi_jk1,low_dim_rep_k1)]
+                #low_dim_reps = [low_dim_rep_k0,low_dim_rep_k1]
+            else:
+                resolutions = [None]
+                #low_dim_reps = [None]
+        self.resolutions += resolutions
+        #self.low_dim_reps += low_dim_reps
+        #return resolutions,low_dim_reps
+        return resolutions
+        
+    def next_res_sub(self, res_jk, dim):
+        resolutions = []
+        #low_dim_reps = []
+        if res_jk != None and len(res_jk[0])>1:
+            cluster_0, cluster_1 = self.split_step(res_jk[0])
+            c_jk0, Phi_jk0, low_dim_rep_k0 = self.proj_matrix(cluster_0)
+            c_jk1, Phi_jk1, low_dim_rep_k1 = self.proj_matrix(cluster_1)
+            if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999:
+                resolutions = [(cluster_0,c_jk0,Phi_jk0,low_dim_rep_k0),(cluster_1,c_jk1,Phi_jk1,low_dim_rep_k1)]
+                #low_dim_reps = [low_dim_rep_k0,low_dim_rep_k1]
+            else:
+                resolutions = [None]
+                #low_dim_reps = [None]
+        #return resolutions,low_dim_reps
+        return resolutions
+        
+    def next_res(self, rdd_j):
+        rdd_j1 = rdd_j.flatMap(lambda res_jk: next_res_sub(res_jk,self.dim))
+        self.resolutions += rdd_j1.collect()
+        return rdd_j1
+        
     def fit(self, data=None, dim=None, res=None):
         if data==None:
             data = self.data
@@ -159,8 +190,9 @@ class GMRA:
                     resolutions += [None]
                     low_dim_reps += [None]           
         self.low_dim_reps = low_dim_reps
-        self.resolutions = resolutions'''
-        return self.low_dim_reps,self.resolutions
+        self.resolutions = resolutions
+        return self.low_dim_reps,self.resolutions'''
+        return self.resolutions
     
     def project_test_point(self, point):
         point_reps = [np.transpose(self.resolutions[0][2]).dot(point)]
