@@ -184,7 +184,7 @@ class GMRA:
                     if max_mem < max(self.compute_mem(resolutions[0][0]),self.compute_mem(resolutions[1][0])):
                         max_mem =  max(self.compute_mem(resolutions[0][0]),self.compute_mem(resolutions[1][0]))
                 print "maxmem ",max_mem
-                if 3*max_mem < mem:
+                if 3*max_mem < self.mem:
                     fit_in_mem = True
                     print "fit in mem true"
                     for j in xrange(2**(i+1)):
