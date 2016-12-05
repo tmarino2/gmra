@@ -193,7 +193,7 @@ class GMRA:
                         print C_jk.shape
                         temp_rdd = self.sc.parallelize([C_jk])
                         print temp_rdd.count()
-                        rdd_j.union(temp_rdd)
+                        rdd_j = rdd_j.union(temp_rdd)
                     print rdd_j.count()
             else:
                 print "in mem"
