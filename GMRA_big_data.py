@@ -126,7 +126,7 @@ class GMRA:
         c_jk = np.reshape(c_jk,(c_jk.shape[0],1))
         centered_data = data - c_jk
         Phi_jk, _, _ = np.linalg.svd(centered_data,full_matrices=False)
-        low_dim_rep = np.transpose(Phi_jk).dot(centered_data)
+        low_dim_rep = np.transpose(Phi_jk[:,0:self.dim]).dot(centered_data)
         return c_jk, Phi_jk[:,0:self.dim], np.transpose(low_dim_rep)
         
     def next_res_rdd(self, res_jk):
