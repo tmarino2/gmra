@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans as kmeans
 import mdtraj as md
 from pyspark import SparkConf, SparkContext
 from pyspark.mllib.linalg.distributed import *
@@ -109,7 +109,7 @@ class GMRA:
         return cluster_0.map(lambda (entry,cluster) : entry), cluster_1.map(lambda (entry,cluster) : entry)
     
     def split_step(self, data):
-        km = KMeans(n_clusters=2, random_state=0).fit(data)
+        km = kmeans(n_clusters=2, random_state=0).fit(data)
         to_split = zip(data,km.labels_)
         cluster_0 = filter(lambda (entry,cluster) : cluster == 0, to_split)
         cluster_1 = filter(lambda (entry,cluster) : cluster == 1, to_split)
@@ -119,7 +119,7 @@ class GMRA:
         C = C_jk(data,self.dim)
         low_dim_rep = C.project()
         return C.c_jk, C.P_jk, low_dim_rep
-
+    
     def proj_matrix(self, data):
         data = np.transpose(data)
         c_jk = data.mean(1)
