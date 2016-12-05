@@ -203,8 +203,9 @@ class GMRA:
                     print rdd_j.first()
             else:
                 print "in mem"
-                temp_rdd = next_res(rdd_j)
+                temp_rdd,resolutions = next_res(rdd_j,self.dim)
                 print temp_rdd.count()
+                self.resolutions += resolutions
                 rdd_j = temp_rdd
             i+=1        
         return self.resolutions
@@ -236,8 +237,8 @@ class GMRA:
 def next_res(rdd_j,dim):
     rdd_j1 = rdd_j.flatMap(lambda res_jk: next_res_sub(res_jk,dim))
     print "next_res rdd size",rdd_j1.count()
-    resolutions += rdd_j1.collect()
-    return rdd_j1
+    resolutions = rdd_j1.collect()
+    return rdd_j1,resolutions
     
 def next_res_sub(res_jk, dim):
         #something is not right here
