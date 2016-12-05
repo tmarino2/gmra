@@ -95,7 +95,7 @@ class GMRA:
         self.low_dim_reps = []
         self.resolutions = []
         
-    def split_step(self,rdd):
+    def split_step_rdd(self,rdd):
         #take an rdd with row-wise data and split it in two clusters with k-means
         #return the two rdd's wrt to the clusters
         kmeans_b = KMeans.train(rdd, 2, maxIterations=10, seed=50, initializationSteps=5)
@@ -105,6 +105,30 @@ class GMRA:
         cluster_0 = to_split.filter(lambda (entry,cluster) : cluster == 0)
         cluster_1 = to_split.filter(lambda (entry,cluster) : cluster == 1)
         return cluster_0.map(lambda (entry,cluster) : entry), cluster_1.map(lambda (entry,cluster) : entry)
+
+    def split_step(self, data):
+        km = KMeans(n_clusters=2, random_state=0).fit(data)
+        to_split = zip(data,km.labels_)
+        cluster_0 = filter(lambda (entry,cluster) : cluster == 0, to_split)
+        cluster_1 = filter(lambda (entry,cluster) : cluster == 1, to_split)
+        return np.asarray(map(lambda (entry,cluster) : entry, cluster_0)), np.asarray(map(lambda (entry,cluster) : entry, cluster_1))
+
+    def next_res_rdd(self, res_jk):
+        resolutions = []
+        low_dim_reps = []
+        if res_jk != None and res_jk[0].count()>1:
+            cluster_0,cluster_1 = self.split_step_rdd(res_jk[0])
+            c_jk0, Phi_jk0, low_dim_rep_k0 = self.project_cluster(cluster_0)
+            c_jk1, Phi_jk1, low_dim_rep_k1 = self.project_cluster(cluster_1)
+            if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999: #replace by epsilon of choice
+                resolutions = [(cluster_0,c_jk0,Phi_jk0),(cluster_1,c_jk1,Phi_jk1)]
+                low_dim_reps = [low_dim_rep_k0,low_dim_rep_k1]
+            else:
+                resolutions = [None]
+                low_dim_reps = [None]
+        self.resolutions += resolutions
+        self.low_dim_reps += low_dim_reps
+        return resolutions,low_dim_reps
     
     def project_cluster(self, data):
         C = C_jk(data,self.dim)
@@ -119,12 +143,13 @@ class GMRA:
         if res==None:
             res = self.res
         c_jk, Phi_jk, low_dim_rep = self.project_cluster(data)
-        resolutions = [(data,c_jk,Phi_jk)]
-        low_dim_reps = [low_dim_rep]
+        self.resolutions = [(data,c_jk,Phi_jk)]
+        self.low_dim_reps = [low_dim_rep]
         for j in xrange(2**res+1):
             print "At "+str(j)
-            if resolutions[j] != None and resolutions[j][0].count()>1:
-                cluster_0,cluster_1 = self.split_step(resolutions[j][0])
+            self.next_res_rdd(self.resolutions[j])
+            '''if resolutions[j] != None and resolutions[j][0].count()>1:
+                cluster_0,cluster_1 = self.split_step_rdd(resolutions[j][0])
                 c_jk0, Phi_jk0, low_dim_rep_k0 = self.project_cluster(cluster_0)
                 c_jk1, Phi_jk1, low_dim_rep_k1 = self.project_cluster(cluster_1)
                 if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999: #replace by epsilon of choice
@@ -132,10 +157,10 @@ class GMRA:
                     low_dim_reps += [low_dim_rep_k0,low_dim_rep_k1]
                 else:
                     resolutions += [None]
-                    low_dim_reps += [None]
+                    low_dim_reps += [None]           
         self.low_dim_reps = low_dim_reps
-        self.resolutions = resolutions
-        return low_dim_reps,resolutions
+        self.resolutions = resolutions'''
+        return self.low_dim_reps,self.resolutions
     
     def project_test_point(self, point):
         point_reps = [np.transpose(self.resolutions[0][2]).dot(point)]
