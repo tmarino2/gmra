@@ -191,11 +191,14 @@ class GMRA:
                         idx = 2**(i+1)-1+j
                         C_jk = np.copy(np.asarray(self.resolutions[idx][0].collect()))
                         print C_jk.shape
-                        rdd_j.union(self.sc.parallelize([C_jk]))
+                        temp_rdd = self.sc.parallelize([C_jk])
+                        print temp_rdd.count()
+                        rdd_j.union(temp_rdd)
                     print rdd_j.count()
             else:
                 print "in mem"
                 temp_rdd = self.next_res(rdd_j)
+                print temp_rdd.count()
                 rdd_j = temp_rdd
             i+=1        
         return self.resolutions
