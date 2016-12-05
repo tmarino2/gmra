@@ -203,7 +203,7 @@ class GMRA:
                     print rdd_j.first()
             else:
                 print "in mem"
-                temp_rdd = self.next_res(rdd_j)
+                temp_rdd = next_res(rdd_j)
                 print temp_rdd.count()
                 rdd_j = temp_rdd
             i+=1        
@@ -233,6 +233,12 @@ class GMRA:
         b = np.sqrt(np.trace(np.transpose(B).dot(B)))
         return ab/(a*b)
 
+def next_res(rdd_j,dim):
+    rdd_j1 = rdd_j.flatMap(lambda res_jk: next_res_sub(res_jk,dim))
+    print "next_res rdd size",rdd_j1.count()
+    self.resolutions += rdd_j1.collect()
+    return rdd_j1
+    
 def next_res_sub(res_jk, dim):
         #something is not right here
     resolutions = []
@@ -262,3 +268,4 @@ def split_step(data):
     cluster_0 = filter(lambda (entry,cluster) : cluster == 0, to_split)
     cluster_1 = filter(lambda (entry,cluster) : cluster == 1, to_split)
     return np.asarray(map(lambda (entry,cluster) : entry, cluster_0)), np.asarray(map(lambda (entry,cluster) : entry, cluster_1))
+
