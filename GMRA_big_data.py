@@ -107,7 +107,7 @@ class GMRA:
         cluster_0 = to_split.filter(lambda (entry,cluster) : cluster == 0)
         cluster_1 = to_split.filter(lambda (entry,cluster) : cluster == 1)
         return cluster_0.map(lambda (entry,cluster) : entry), cluster_1.map(lambda (entry,cluster) : entry)
-
+    
     def split_step(self, data):
         km = KMeans(n_clusters=2, random_state=0).fit(data)
         to_split = zip(data,km.labels_)
