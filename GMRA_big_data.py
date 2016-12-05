@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.cluster import KMeans
 import mdtraj as md
 from pyspark import SparkConf, SparkContext
 from pyspark.mllib.linalg.distributed import *
