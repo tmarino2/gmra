@@ -194,8 +194,9 @@ class GMRA:
                     for j in xrange(2**(i+1)):
                         idx = 2**(i+1)-1+j
                         C_jk = np.copy(np.asarray(self.resolutions[idx][0].collect()))
+                        Projected_jk = np.copy(np.asarray(self.resolutions[idx][3].collect()))
                         print "C_jk shape: ",C_jk.shape
-                        temp_rdd = self.sc.parallelize([C_jk])
+                        temp_rdd = self.sc.parallelize([(C_jk,self.resolutions[idx][1],self.resolutions[idx][2],Projected_jk)])
                         print temp_rdd.count()
                         rdd_j = rdd_j.union(temp_rdd)
                     print "rdd_j size: ",rdd_j.count()
