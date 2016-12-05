@@ -189,8 +189,9 @@ class GMRA:
                     print "fit in mem true"
                     for j in xrange(2**(i+1)):
                         idx = 2**(i+1)-1+j
-                        print np.asarray(self.resolutions[idx][0].collect())
-                        rdd_j.union(self.sc.parallelize([np.asarray(self.resolutions[idx][0].collect())]))
+                        C_jk = np.copy(np.asarray(self.resolutions[idx][0].collect()))
+                        print C_jk.shape
+                        rdd_j.union(self.sc.parallelize([C_jk]))
                     print rdd_j.count()
             else:
                 print "in mem"
