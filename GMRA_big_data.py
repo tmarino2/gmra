@@ -156,6 +156,7 @@ class GMRA:
         
     def next_res(self, rdd_j):
         rdd_j1 = rdd_j.flatMap(lambda res_jk: next_res_sub(res_jk,self.dim))
+        print "next_res rdd size",rdd_j1.count()
         self.resolutions += rdd_j1.collect()
         return rdd_j1
 
@@ -190,11 +191,11 @@ class GMRA:
                     for j in xrange(2**(i+1)):
                         idx = 2**(i+1)-1+j
                         C_jk = np.copy(np.asarray(self.resolutions[idx][0].collect()))
-                        print C_jk.shape
+                        print "C_jk shape: ",C_jk.shape
                         temp_rdd = self.sc.parallelize([C_jk])
                         print temp_rdd.count()
                         rdd_j = rdd_j.union(temp_rdd)
-                    print rdd_j.count()
+                    print "rdd_j size: ",rdd_j.count()
             else:
                 print "in mem"
                 temp_rdd = self.next_res(rdd_j)
