@@ -87,13 +87,14 @@ class C_jk:
     
 class GMRA:
     
-    def __init__(self, data, manifold_dim, resolution):
+    def __init__(self, data, manifold_dim, resolution, memory, sc):
         #self.data = np.transpose(data) #since our data is in rows
         self.data = data
         self.dim = manifold_dim
         self.res = resolution
-        #self.low_dim_reps = []
         self.resolutions = []
+        self.mem = memory
+        self.sc = sc
         
     def split_step_rdd(self,rdd):
         #take an rdd with row-wise data and split it in two clusters with k-means
@@ -129,44 +130,39 @@ class GMRA:
         
     def next_res_rdd(self, res_jk):
         resolutions = []
-        #low_dim_reps = []
         if res_jk != None and res_jk[0].count()>1:
             cluster_0,cluster_1 = self.split_step_rdd(res_jk[0])
             c_jk0, Phi_jk0, low_dim_rep_k0 = self.project_cluster(cluster_0)
             c_jk1, Phi_jk1, low_dim_rep_k1 = self.project_cluster(cluster_1)
             if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999: #replace by epsilon of choice
                 resolutions = [(cluster_0,c_jk0,Phi_jk0,low_dim_rep_k0),(cluster_1,c_jk1,Phi_jk1,low_dim_rep_k1)]
-                #low_dim_reps = [low_dim_rep_k0,low_dim_rep_k1]
             else:
                 resolutions = [None]
                 #low_dim_reps = [None]
         self.resolutions += resolutions
-        #self.low_dim_reps += low_dim_reps
-        #return resolutions,low_dim_reps
         return resolutions
         
     def next_res_sub(self, res_jk, dim):
         resolutions = []
-        #low_dim_reps = []
         if res_jk != None and len(res_jk[0])>1:
             cluster_0, cluster_1 = self.split_step(res_jk[0])
             c_jk0, Phi_jk0, low_dim_rep_k0 = self.proj_matrix(cluster_0)
             c_jk1, Phi_jk1, low_dim_rep_k1 = self.proj_matrix(cluster_1)
             if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999:
                 resolutions = [(cluster_0,c_jk0,Phi_jk0,low_dim_rep_k0),(cluster_1,c_jk1,Phi_jk1,low_dim_rep_k1)]
-                #low_dim_reps = [low_dim_rep_k0,low_dim_rep_k1]
             else:
-                resolutions = [None]
-                #low_dim_reps = [None]
-        #return resolutions,low_dim_reps
+                resolutions = [None,None]
         return resolutions
         
     def next_res(self, rdd_j):
         rdd_j1 = rdd_j.flatMap(lambda res_jk: next_res_sub(res_jk,self.dim))
         self.resolutions += rdd_j1.collect()
         return rdd_j1
-        
-    def fit(self, data=None, dim=None, res=None):
+
+    def compute_mem(self, rdd):
+        return rdd.count() #make this approximately compute memory taken by rdd
+    
+    def fit(self, data=None, dim=None, res=None, mem=None):
         if data==None:
             data = self.data
         if dim==None:
@@ -174,24 +170,28 @@ class GMRA:
         if res==None:
             res = self.res
         c_jk, Phi_jk, low_dim_rep = self.project_cluster(data)
-        self.resolutions = [(data,c_jk,Phi_jk)]
-        self.low_dim_reps = [low_dim_rep]
-        for j in xrange(2**res+1):
-            print "At "+str(j)
-            self.next_res_rdd(self.resolutions[j])
-            '''if resolutions[j] != None and resolutions[j][0].count()>1:
-                cluster_0,cluster_1 = self.split_step_rdd(resolutions[j][0])
-                c_jk0, Phi_jk0, low_dim_rep_k0 = self.project_cluster(cluster_0)
-                c_jk1, Phi_jk1, low_dim_rep_k1 = self.project_cluster(cluster_1)
-                if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999: #replace by epsilon of choice
-                    resolutions += [(cluster_0,c_jk0,Phi_jk0),(cluster_1,c_jk1,Phi_jk1)]
-                    low_dim_reps += [low_dim_rep_k0,low_dim_rep_k1]
-                else:
-                    resolutions += [None]
-                    low_dim_reps += [None]           
-        self.low_dim_reps = low_dim_reps
-        self.resolutions = resolutions
-        return self.low_dim_reps,self.resolutions'''
+        self.resolutions = [(data,c_jk,Phi_jk,low_dim_rep)]
+        fit_in_mem = False
+        rdd_j = self.sc.emptyRDD()
+        i = 0
+        while i<=res:
+            if not(fit_in_mem):
+                max_mem = 0
+                for j in xrange(2**i):
+                    print "At resolution "+str(i)+" step "+str(j)
+                    idx = 2**i-1+j
+                    resolutions = self.next_res_rdd(self.resolutions[idx])
+                    if max_mem < max(compute_mem(resolutions[0][0]),compute_mem(resolutions[1][0])):
+                        max_mem =  max(compute_mem(resolutions[0][0]),compute_mem(resolutions[1][0]))
+                if 3*max_mem < mem:
+                    fit_in_mem = True
+                    for j in xrange(2**(i+1)):
+                        idx = 2**(i+1)-1+j
+                        rdd_j.union([np.asarray(self.resolutions[idx][0].collect())]) d d
+            else:
+                rdd_j = self.next_res(rdd_j)
+            i+=1
+                
         return self.resolutions
     
     def project_test_point(self, point):
