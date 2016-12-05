@@ -181,13 +181,13 @@ class GMRA:
                     print "At resolution "+str(i)+" step "+str(j)
                     idx = 2**i-1+j
                     resolutions = self.next_res_rdd(self.resolutions[idx])
-                    if max_mem < max(self.compute_mem(resolutions[0][0]),compute_mem(resolutions[1][0])):
-                        max_mem =  max(self.compute_mem(resolutions[0][0]),compute_mem(resolutions[1][0]))
+                    if max_mem < max(self.compute_mem(resolutions[0][0]),self.compute_mem(resolutions[1][0])):
+                        max_mem =  max(self.compute_mem(resolutions[0][0]),self.compute_mem(resolutions[1][0]))
                 if 3*max_mem < mem:
                     fit_in_mem = True
                     for j in xrange(2**(i+1)):
                         idx = 2**(i+1)-1+j
-                        rdd_j.union([np.asarray(self.resolutions[idx][0].collect())])
+                        rdd_j.union(sc.parallelize([np.asarray(self.resolutions[idx][0].collect())]))
             else:
                 rdd_j = self.next_res(rdd_j)
             i+=1        
