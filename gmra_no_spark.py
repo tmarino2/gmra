@@ -1,5 +1,6 @@
 from sklearn.cluster import KMeans
 import numpy as np
+import incremental_svd as sv
 #import mdtraj as md
 
 class GMRA:
@@ -23,7 +24,8 @@ class GMRA:
         c_jk = data.mean(1)
         c_jk = np.reshape(c_jk,(c_jk.shape[0],1))
         centered_data = data - c_jk
-        Phi_jk, _, _ = np.linalg.svd(centered_data,full_matrices=False)
+        #Phi_jk, _, _ = np.linalg.svd(centered_data,full_matrices=False)
+        Phi_jk, _, _ = sv.svd(centered_data,dim)
         return c_jk, Phi_jk[:,0:dim]
 
     def proj_points(self, data, c_jk, Phi_jk):
@@ -42,13 +44,13 @@ class GMRA:
         c_jk = data.mean(1)
         c_jk = np.reshape(c_jk,(c_jk.shape[0],1))
         centered_data = data-c_jk
-        Phi_jk, _, _ = np.linalg.svd(centered_data,full_matrices=False)
+        #Phi_jk, _, _ = np.linalg.svd(centered_data,full_matrices=False)
+        Phi_jk, _, _ = sv.svd(centered_data,dim)
         resolutions = [(data,c_jk,Phi_jk[:,0:dim])]
         low_dim_reps = [np.transpose(Phi_jk[:,0:dim]).dot(data)]
         for j in xrange(2**res+1):
-            print "At scale "+str(j)
+            print "At "+str(j)
             if resolutions[j] != None and resolutions[j][0].shape[1]>1:
-                print resolutions[j][0].shape[1]
                 cluster_0,cluster_1 = self.split_step(resolutions[j][0])
                 c_jk0, Phi_jk0 = self.proj_matrix(cluster_0,dim)
                 c_jk1, Phi_jk1 = self.proj_matrix(cluster_1,dim)
