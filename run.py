@@ -2,7 +2,7 @@ import mdtraj as md
 import numpy as np
 import gmra_no_spark as gm
 
-for j in range(1,2):
+for j in range(1,11):
     file_name = ''
     topology_name = '/mddb2/md/bpti-prot/bpti-prot.pdb'
     if j < 10:
@@ -10,8 +10,8 @@ for j in range(1,2):
     else:
         file_name = '/mddb2/md/bpti-prot/bpti-prot-%d.dcd'%(j)
     traj = md.load(file_name, top=topology_name)
-    traj = traj.xyz[0:800]
-    traj = np.reshape(traj,(800,892*3))
+    traj = traj.xyz[0:80000]
+    traj = np.reshape(traj,(80000,892*3))
     gmra = gm.GMRA(traj,10,7)
     resolutions, low_dim_rep = gmra.fit()
     #rep_k = open('rep_k2','a+')
