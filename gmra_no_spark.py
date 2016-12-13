@@ -24,7 +24,7 @@ class GMRA:
         c_jk = data.mean(1)
         c_jk = np.reshape(c_jk,(c_jk.shape[0],1))
         centered_data = data - c_jk
-        if centered_data.matrix.shape[1]<15000:
+        if centered_data.shape[1]<15000:
             Phi_jk, _, _ = np.linalg.svd(centered_data,full_matrices=False)
         else:
             Phi_jk, _, _ = sv.svd(centered_data,dim)
