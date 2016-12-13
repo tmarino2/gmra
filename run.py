@@ -4,6 +4,7 @@ import gmra_no_spark as gm
 
 for j in range(1,11):
     file_name = ''
+    new_file_ind = 'bpti-prot-%d.dcd\n'%(j)
     topology_name = '/mddb2/md/bpti-prot/bpti-prot.pdb'
     if j < 10:
         file_name = '/mddb2/md/bpti-prot/bpti-prot-0%d.dcd'%(j)
@@ -13,11 +14,14 @@ for j in range(1,11):
     traj = traj.xyz[0:80000]
     traj = np.reshape(traj,(80000,892*3))
     gmra = gm.GMRA(traj,10,7)
-    resolutions, low_dim_rep = gmra.fit()
     #rep_k = open('rep_k2','a+')
     c_jk = open('c_jk2','a+')
+    c_jk.write(new_file_ind)
     Phi_jk = open('Phi_jk2','a+')
+    Phi_jk.write(new_file_ind)
     low_dim_reps = open('low_dim_reps2','a+')
+    low_dim_reps.write(new_file_ind)
+    resolutions, low_dim_rep = gmra.fit()
     for i in xrange(len(resolutions)):
         #rep_k_l = 'representation %d\n'%(i)
         c_jk_l = 'c_jk %d\n'%(i)
