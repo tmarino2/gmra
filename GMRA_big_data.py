@@ -164,8 +164,9 @@ class GMRA:
         return rdd_j1
 
     def compute_mem(self, rdd):
-        row_size = (len(rdd.first())*rdd.first().itemsize)/1024.0 #approximate size of row in KBs
-        return rdd.count()*row_size #make this approximately compute memory taken by rdd
+        return rdd.count()
+        '''row_size = (len(rdd.first())*rdd.first().itemsize)/1024.0 #approximate size of row in KBs
+        return rdd.count()*row_size #make this approximately compute memory taken by rdd'''
     
     def fit(self, data=None, dim=None, res=None, mem=None):
         if data==None:
