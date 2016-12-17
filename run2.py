@@ -13,7 +13,7 @@ args = argsp.parse_args()
 topology_name = '/mddb2/md/bpti-prot/bpti-prot.pdb'
 align_to = md.load('/mddb2/md/bpti-prot/bpti-prot-00.dcd',top=topology_name)
 
-for j in range(1,2):
+for j in range(0,10):
     file_name = ''
     save_file = 'bpti-prot-%d.b'%(j)
     if j < 10:
@@ -27,4 +27,3 @@ for j in range(1,2):
     gmra = gm.GMRA(traj,args.manifold_dim,args.resolution)
     ldr,res = gmra.fit()
     gmra.save_model(save_file)
-    
