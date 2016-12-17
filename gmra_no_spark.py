@@ -1,6 +1,7 @@
 from sklearn.cluster import KMeans
 import numpy as np
 import incremental_svd as sv
+import pickle
 #import mdtraj as md
 
 class GMRA:
@@ -24,7 +25,7 @@ class GMRA:
         c_jk = data.mean(1)
         c_jk = np.reshape(c_jk,(c_jk.shape[0],1))
         centered_data = data - c_jk
-        if centered_data.shape[1]<15000:
+        if centered_data.matrix.shape[1]<15000:
             Phi_jk, _, _ = np.linalg.svd(centered_data,full_matrices=False)
         else:
             Phi_jk, _, _ = sv.svd(centered_data,dim)
@@ -33,8 +34,9 @@ class GMRA:
     def proj_points(self, data, c_jk, Phi_jk):
         low_dim_rep = np.transpose(Phi_jk).dot(data-c_jk)
         #Proj_matrix = Phi_jk.dot(np.transpose(Phi_jk))
-        rep = Phi_jk.dot(low_dim_rep) + c_jk
-        return low_dim_rep,rep
+        #rep = Phi_jk.dot(low_dim_rep) + c_jk
+        #return low_dim_rep,rep
+        return low_dim_rep,0
 
     def fit(self, data=None, dim=None, res=None):
         if data==None:
@@ -52,7 +54,8 @@ class GMRA:
         low_dim_reps = [np.transpose(Phi_jk[:,0:dim]).dot(data)]
         for j in xrange(2**res+1):
             print "At "+str(j)
-            if resolutions[j] != None and resolutions[j][0].shape[1]>1:
+            #if resolutions[j] != None and resolutions[j][0].shape[1]>1:
+            if low_dim_reps[j] != None and low_dim_reps[j].shape[1]>1:
                 cluster_0,cluster_1 = self.split_step(resolutions[j][0])
                 c_jk0, Phi_jk0 = self.proj_matrix(cluster_0,dim)
                 c_jk1, Phi_jk1 = self.proj_matrix(cluster_1,dim)
@@ -92,9 +95,14 @@ class GMRA:
         b = np.sqrt(np.trace(np.transpose(B).dot(B)))
         return ab/(a*b)
 
-    
-            
-    
+    def save_model(file_name):
+        pickle.dump((self.resolutions,self.low_dim_reps),open(file_name,"wb+"))
+
+    def load_model(file_name):
+        tupple = pickle.load(open( file_name, "rb" ))
+        self.resolutions = tupple[0]
+        self.low_dim_reps = tupple[1]
+
             
             
         
