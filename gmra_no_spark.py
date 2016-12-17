@@ -99,7 +99,7 @@ class GMRA:
 
         with open(file_name, 'wb') as handle:
             #pickle.dump((self.low_dim_reps,[el[1] for el in self.resolutions],[el[2] for el in self.resolutions]),open(file_name,"wb+"))
-            pickle.dump((self.low_dim_reps,[el[1] for el in self.resolutions],[el[2] for el in self.resolutions]), handle, protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump((self.low_dim_reps,[el[1] if el!=None else el for el in self.resolutions],[el[2] if el!=None else el for el in self.resolutions]), handle, protocol=pickle.HIGHEST_PROTOCOL)
         
     def load_model(self,file_name):
         with open(file_name,'rb'):
@@ -107,7 +107,7 @@ class GMRA:
             c_jks = tupple[1]
             Phi_jks = tupple[2]
             reps = [0 for i in xrange(len(tupple[1]))]
-            self.resolutions = zip(reps,c_jks,Phi_jks)
+            self.resolutions = [el if el[1]!=None else None for el in zip(reps,c_jks,Phi_jks)]
             self.low_dim_reps = tupple[0]
 
             
