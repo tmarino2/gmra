@@ -96,15 +96,19 @@ class GMRA:
         return ab/(a*b)
 
     def save_model(self,file_name):
-        pickle.dump((self.low_dim_reps,[el[1] for el in self.resolutions],[el[2] for el in self.resolutions]),open(file_name,"wb+"))
 
+        with open(file_name, 'wb') as handle:
+            #pickle.dump((self.low_dim_reps,[el[1] for el in self.resolutions],[el[2] for el in self.resolutions]),open(file_name,"wb+"))
+            pickle.dump((self.low_dim_reps,[el[1] for el in self.resolutions],[el[2] for el in self.resolutions]), handle, protocol=pickle.HIGHEST_PROTOCOL)
+        
     def load_model(self,file_name):
-        tupple = pickle.load(open( file_name, "rb" ))
-        c_jks = tupple[1]
-        Phi_jks = tupple[2]
-        reps = [0 for i in xrange(len(tupple[1]))]
-        self.resolutions = zip(reps,c_jks,Phi_jks)
-        self.low_dim_reps = tupple[0]
+        with open(file_name,'rb'):
+        #tupple = pickle.load(open( file_name, "rb" ))
+            c_jks = tupple[1]
+            Phi_jks = tupple[2]
+            reps = [0 for i in xrange(len(tupple[1]))]
+            self.resolutions = zip(reps,c_jks,Phi_jks)
+            self.low_dim_reps = tupple[0]
 
             
             
