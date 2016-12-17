@@ -95,10 +95,10 @@ class GMRA:
         b = np.sqrt(np.trace(np.transpose(B).dot(B)))
         return ab/(a*b)
 
-    def save_model(file_name):
+    def save_model(self,file_name):
         pickle.dump((self.low_dim_reps,[el[1] for el in self.resolutions],[el[2] for el in self.resolutions]),open(file_name,"wb+"))
 
-    def load_model(file_name):
+    def load_model(self,file_name):
         tupple = pickle.load(open( file_name, "rb" ))
         c_jks = tupple[1]
         Phi_jks = tupple[2]
