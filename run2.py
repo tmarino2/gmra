@@ -26,5 +26,5 @@ for j in range(1,2):
     traj = np.reshape(traj,(args.num_points,892*3))
     gmra = gm.GMRA(traj,args.manifold_dim,args.resolution)
     ldr,res = gmra.fit()
-    gmra.save_file(save_file)
+    gmra.save_model(save_file)
     
