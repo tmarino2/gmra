@@ -62,7 +62,7 @@ class GMRA:
                 if self.subsp_angle(Phi_jk0,Phi_jk1) < 0.99999: #replace by epsilon of choice
                     low_dim_rep_k0,rep_k0 = self.proj_points(cluster_0,c_jk0,Phi_jk0)
                     low_dim_rep_k1,rep_k1 = self.proj_points(cluster_1,c_jk1,Phi_jk1)
-                    resolutions += [(rep_k0,c_jk0,Phi_jk0),(rep_k1,c_jk1,Phi_jk1)]
+                    resolutions += [(cluster_0,c_jk0,Phi_jk0),(cluster_1,c_jk1,Phi_jk1)]
                     low_dim_reps += [low_dim_rep_k0,low_dim_rep_k1]
                 else:
                     resolutions += [None]
@@ -96,12 +96,15 @@ class GMRA:
         return ab/(a*b)
 
     def save_model(file_name):
-        pickle.dump((self.resolutions,self.low_dim_reps),open(file_name,"wb+"))
+        pickle.dump((self.low_dim_reps,[el[1] for el in self.resolutions],[el[2] for el in self.resolutions]),open(file_name,"wb+"))
 
     def load_model(file_name):
         tupple = pickle.load(open( file_name, "rb" ))
-        self.resolutions = tupple[0]
-        self.low_dim_reps = tupple[1]
+        c_jks = tupple[1]
+        Phi_jks = tupple[2]
+        reps = [0 for i in xrange(len(tupple[1]))]
+        self.resolutions = zip(reps,c_jks,Phi_jks)
+        self.low_dim_reps = tupple[0]
 
             
             
